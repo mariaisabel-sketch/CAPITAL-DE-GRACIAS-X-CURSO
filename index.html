@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capital de Gracias — X Curso</title>
+<style>
+:root{--blue:#245b91;--sky:#dceefa;--ink:#294b69;--gold:#b99a5b}
+*{box-sizing:border-box}
+body{margin:0;font-family:Georgia,'Times New Roman',serif;color:var(--ink);background:linear-gradient(180deg,#f8fcff,#e8f3fb);min-height:100vh}
+main{max-width:760px;margin:0 auto;padding:26px 18px 48px}
+.card{background:#ffffffed;border:1px solid #d5e6f3;border-radius:24px;padding:clamp(22px,5vw,42px);box-shadow:0 12px 36px #214d7112}
+.top{text-align:center}
+.mark{font-size:30px;color:#6d9ec6;letter-spacing:8px}
+h1{font-size:clamp(28px,6vw,42px);letter-spacing:2px;color:var(--blue);margin:12px 0 5px}
+h2{font-size:20px;letter-spacing:1.5px;color:var(--blue);margin:0}
+.subtitle{font-family:Arial,sans-serif;font-size:13px;letter-spacing:2px;margin:10px 0 22px;color:#6486a5}
+.details{display:inline-block;background:#f0f7fc;border-radius:16px;padding:13px 20px;line-height:1.8;font-family:Arial,sans-serif;font-size:14px}
+hr{border:0;border-top:1px solid #dce9f3;margin:28px 0}
+h3{text-align:center;color:var(--blue);font-size:23px;margin:0 0 18px}
+.prayer{font-size:18px;line-height:1.75;white-space:pre-line;text-align:left}
+.counter{text-align:center;background:#f0f7fc;border-radius:20px;padding:22px 14px;margin-top:26px}
+.count{font-family:Arial,sans-serif;font-size:46px;font-weight:700;color:var(--blue);margin:4px}
+.label{font-family:Arial,sans-serif;font-size:13px;letter-spacing:1.5px;color:#6486a5}
+.hearts{display:flex;justify-content:center;gap:18px;margin:18px 0;flex-wrap:wrap}
+.heart{border:0;background:transparent;font-size:58px;cursor:pointer;line-height:1;filter:drop-shadow(0 4px 4px #245b9120);transition:transform .12s}
+.heart:hover{transform:scale(1.12)} .heart:active{transform:scale(.92)}
+.help{font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:#55738d}
+.jac{text-align:center;color:var(--blue);font-size:19px;font-style:italic;margin-top:25px}
+.note{text-align:center;font:12px Arial,sans-serif;color:#7891a7;margin-top:20px}
+.status{font:13px Arial,sans-serif;color:#55738d;min-height:20px;margin-top:8px}
+@media(max-width:480px){.prayer{font-size:16px}.heart{font-size:52px}}
+</style>
+</head>
+<body>
+<main><section class="card">
+<header class="top">
+<div class="mark">✧ 🕊 ✧</div>
+<h1>CAPITAL DE GRACIAS</h1>
+<h2>X CURSO</h2>
+<div class="subtitle">FEDERACIÓN APOSTÓLICA DE FAMILIAS</div>
+<div class="details"><strong>Primera Consagración</strong><br> Sábado 12 de diciembre de 2026 · 10:00 a. m.<br> Santuario Ciudad Celeste</div>
+</header>
+<hr>
+<h3>Oración al Espíritu Santo</h3>
+<div class="prayer">«Espíritu Santo, eres el alma de mi alma. Te adoro humildemente. Ilumíname, fortifícame, guíame, consuélame.
+
+Y en cuanto corresponde al plan del eterno Padre Dios, revélame tus deseos. Dame a conocer lo que el Amor eterno desea de mí. Dame a conocer lo que debo realizar. Dame a conocer lo que debo sufrir.
+
+Dame a conocer lo que, silencioso, con modestia y en oración debo aceptar, cargar y soportar.
+
+Sí, Espíritu Santo, dame a conocer tu voluntad y la voluntad del Padre. Pues toda mi vida no quiere ser otra cosa, que un continuado y perpetuo Sí a los deseos y al querer del eterno Padre Dios. Amén.»</div>
+<div class="counter">
+<div class="label">ORACIONES OFRECIDAS POR EL X CURSO</div>
+<div class="count" id="count">—</div>
+<div class="hearts">
+<button class="heart" aria-label="Sumar una oración con corazón azul" onclick="addPrayer('💙')">💙</button>
+<button class="heart" aria-label="Sumar una oración con corazón celeste" onclick="addPrayer('🩵')">🩵</button>
+<button class="heart" aria-label="Sumar una oración con corazón azul" onclick="addPrayer('💙')">💙</button>
+</div>
+<div class="help">Toca un corazón cada vez que ofrezcas una oración por nuestra Primera Consagración.</div>
+<div class="status" id="status">Conectando el contador compartido…</div>
+</div>
+<div class="jac">«¡Quedamos en eso… …permanecemos fieles!»</div>
+<div class="note">Cada corazón, una oración. Unidos en el Capital de Gracias.</div>
+</section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* PASO DE CONFIGURACIÓN: reemplaza estos dos valores con los datos de tu proyecto Supabase. */
+const SUPABASE_URL = "PEGA_AQUI_TU_PROJECT_URL";
+const SUPABASE_ANON_KEY = "PEGA_AQUI_TU_ANON_PUBLIC_KEY";
+const countEl=document.getElementById('count'), statusEl=document.getElementById('status');
+let client=null;
+async function refresh(){
+  if(!client){countEl.textContent='—';return;}
+  const {data,error}=await client.rpc('get_prayer_count');
+  if(error){statusEl.textContent='No se pudo leer el contador. Revisa la configuración.';return;}
+  countEl.textContent=data ?? 0;
+}
+async function addPrayer(heart){
+  if(!client){statusEl.textContent='El contador compartido aún no está conectado.';return;}
+  statusEl.textContent='Sumando tu oración…';
+  const {error}=await client.rpc('add_prayer');
+  if(error){statusEl.textContent='No se pudo sumar. Inténtalo nuevamente.';return;}
+  await refresh();
+  statusEl.textContent='¡Gracias por tu oración! '+heart;
+}
+if(SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.length>20){
+  client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  statusEl.textContent='Contador compartido conectado.';
+  refresh();
+  setInterval(refresh,15000);
+}else{
+  statusEl.textContent='Página preparada. Falta conectar el contador compartido.';
+  countEl.textContent='0';
+}
+</script>
+</body></html>
